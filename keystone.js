@@ -4,6 +4,7 @@ require('dotenv').load();
 
 // Require keystone
 var keystone = require('keystone');
+var handlebars = require('express-handlebars');
 
 // Initialise Keystone with your project's configuration.
 // See http://keystonejs.com/guide/config for available options
@@ -14,17 +15,27 @@ keystone.init({
 	'name': 'resourceshare.church',
 	'brand': 'resourceshare.church',
 	
-	'sass': 'public',
+	'less': 'public',
 	'static': 'public',
 	'favicon': 'public/favicon.ico',
 	'views': 'templates/views',
-	'view engine': 'jade',
+	'view engine': 'hbs',
+	
+	'custom engine': handlebars.create({
+		layoutsDir: 'templates/views/layouts',
+		partialsDir: 'templates/views/partials',
+		defaultLayout: 'default',
+		helpers: new require('./templates/views/helpers')(),
+		extname: '.hbs'
+	}).engine,
+	
+	'emails': 'templates/emails',
 	
 	'auto update': true,
 	'session': true,
 	'auth': true,
 	'user model': 'User',
-	'cookie secret': 'Xk=aPzOy`7]kZBN[~P&_86yV)&RGtz*F|Bb&nkCe_na0+C,)S[*X;7Q8V!,(!@E1'
+	'cookie secret': 'A/OP*e)!R0^MKG&`H8MaSv=p_Dc|<(c=&EO&I7|nBhW}U9[kb^u1eoHE*mtR.(y('
 
 });
 
@@ -49,6 +60,39 @@ keystone.set('routes', require('./routes'));
 
 // Setup common locals for your emails. The following are required by Keystone's
 // default email templates, you may remove them if you're using your own.
+
+keystone.set('email locals', {
+	logo_src: '/images/logo-email.gif',
+	logo_width: 194,
+	logo_height: 76,
+	theme: {
+		email_bg: '#f9f9f9',
+		link_color: '#2697de',
+		buttons: {
+			color: '#fff',
+			background_color: '#2697de',
+			border_color: '#1a7cb7'
+		}
+	}
+});
+
+// Setup replacement rules for emails, to automate the handling of differences
+// between development a production.
+
+// Be sure to update this rule to include your site's actual domain, and add
+// other rules your email templates require.
+
+keystone.set('email rules', [{
+	find: '/images/',
+	replace: (keystone.get('env') == 'production') ? 'http://www.your-server.com/images/' : 'http://localhost:3000/images/'
+}, {
+	find: '/keystone/',
+	replace: (keystone.get('env') == 'production') ? 'http://www.your-server.com/keystone/' : 'http://localhost:3000/keystone/'
+}]);
+
+// Load your project's email test routes
+
+keystone.set('email tests', require('./routes/emails'));
 
 // Configure the navigation bar in Keystone's Admin UI
 
