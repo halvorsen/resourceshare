@@ -14,12 +14,13 @@ var Post = new keystone.List('Post', {
 Post.add({
 	title: { type: String, required: true },
 	state: { type: Types.Select, options: 'draft, published, archived', default: 'draft', index: true },
-	author: { type: Types.Relationship, ref: 'User', index: true },
+	// author should be the admin by default
+	author: { type: Types.Relationship, ref: 'User', index: true, noedit: true },
 	// both of these should be automatically done using mongoose pre methods
 	creationDate: { type: Types.Date, index: true, noedit: true},
 	lastEditDate: { type: Types.Date, index: true, noedit: true},
 	// publishedDate: { type: Types.Date, index: true, dependsOn: { state: 'published' } },
-	image: { type: Types.CloudinaryImage },
+	// image: { type: Types.CloudinaryImage },
 	content: {
 		brief: { type: Types.Html, wysiwyg: true, height: 150 },
 		extended: { type: Types.Html, wysiwyg: true, height: 400 }
