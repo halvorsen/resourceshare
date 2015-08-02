@@ -11,7 +11,7 @@ module.exports.getAll = function(req, res) {
 }
 
 module.exports.get = function(req, res) {
-	res.json(req.post)
+	res.json(req.post);
 
 }
 
@@ -19,7 +19,7 @@ module.exports.create = function(req, res) {
 	var post = new Post.model(req.body);
 	//user.name = req.body.name;
 		res.json(result);
-	});
+	// });
 }
 
 module.exports.edit = function(req, res) {
