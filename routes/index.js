@@ -21,6 +21,8 @@
 var keystone = require('keystone');
 var middleware = require('./middleware');
 var importRoutes = keystone.importer(__dirname);
+var Post = keystone.list('Post');
+var postsController = require('./controllers/postsController')
 
 // Common Middleware
 keystone.pre('routes', middleware.initLocals);
@@ -36,12 +38,35 @@ exports = module.exports = function(app) {
 	
 	// Views
 	app.get('/', routes.views.index);
+	app.get('/posts', postsController.get)
 	app.get('/blog/:category?', routes.views.blog);
 	app.get('/blog/post/:post', routes.views.post);
 	app.get('/gallery', routes.views.gallery);
 	app.all('/contact', routes.views.contact);
-	
+
+	//JSON
+	app.get('/posts', postsController.getAll)
+
+	app.get('/posts/:post', postsController.get)
+
+	app.post('/posts', postsController.create)
+
+	app.put('/posts/:post', postsController.edit)
+
+	app.put('/posts/:post/fork', postsController.fork)
 	// NOTE: To protect a route so that only admins can see it, use the requireUser middleware:
 	// app.get('/protected', middleware.requireUser, routes.views.protected);
+
+	//enable  ids in url
+	app.param('post', function(req, res, next, id) {
+		var query = Post.model.findById(id);
+
+		query.exec(function (err, post) {
+			if (!post) {return next( new Error('cant\' find post'));}
+
+			req.post = post;
+			return next();
+		});
+	});
 	
 };
